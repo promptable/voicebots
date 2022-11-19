@@ -1,7 +1,5 @@
 # Voicebot CLI
-Give chat bots a voice using speech synthesis, speech to text, and GPT-3.
-
-Write a text file, get a voice bot.
+Give chat bots a voice using speech synthesis and GPT-3.
 
 Adds audio/speech on top of https://github.com/bfortuner/textbots.
 
