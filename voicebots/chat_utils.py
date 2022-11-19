@@ -14,7 +14,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit import HTML
 from prompt_toolkit import print_formatted_text as print
 
-from oai_client import OAIClient
+from voicebots.oai_client import OAIClient
 
 
 def get_default_style():

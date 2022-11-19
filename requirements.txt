@@ -1,0 +1,12 @@
+click
+diskcache
+python-dotenv
+openai
+prompt_toolkit
+tenacity
+
+# Voice
+google-cloud-speech
+google-cloud-texttospeech
+pydub
+pyaudio

@@ -1,23 +1,31 @@
-"""Chat bot CLI.
+"""Voice bot CLI.
 
 Usage:
-    python cli.py --user-name Brendan --prompt-file chatbots/assistant.txt
+    python -m cli --user-name Brendan --prompt-file chatbots/assistant.txt
 
-Type "exit" to end the chat.
+Say "exit" or "goodbye" to end the chat.
 """
 import sys
+import time
 import traceback
 from typing import Dict
 
 import click
 import diskcache
 from prompt_toolkit import print_formatted_text as print
-from prompt_toolkit import HTML
 
-from settings import Settings
-from oai_client import OAIClient
-import utils
+from voicebots import audio_utils
+from voicebots.asr.google_transcriber import GoogleTranscriber
+from voicebots.speech import google_speech
+from voicebots.settings import Settings
+from voicebots.oai_client import OAIClient
+from voicebots import chat_utils
 
+DEFAULT_VOICE_NAME = "en-IN-Wavenet-A"  # "en-GB-Neural2-C"
+POST_SPEECH_SLEEP_TIME_SEC = 0
+# List of common phrases we expect. Used to "prime" speech rec provider
+# and improve results
+SUPPORTED_PHRASES = []
 
 # Update PROMPT_CONFIG to customize your experience.
 PROMPT_CONFIG = {
@@ -39,6 +47,43 @@ def get_prompt_config(user_name: str, agent_name: str) -> Dict:
     params["stop"] = ["\n", f"{user_name}:", f"{agent_name}:"]
     print(params)
     return params
+
+
+def user_desires_call_end(text: str) -> bool:
+    # TODO(bfortuner): Replace with regex / fuzzy match
+    clean_text = (
+        text.strip().lower().replace(".", "").replace("?", "").replace("!", ".")
+    )
+
+    # Direct commands (allow deterministic exit)
+    if clean_text in ["exit", "end call"]:
+        return True
+
+    end_call_phrases = [
+        "goodbye",
+        "good bye",
+        "bye now",
+    ]
+    for phrase in end_call_phrases:
+        if phrase in clean_text:
+            return True
+    return False
+
+
+
+def _get_transcriber():
+    return GoogleTranscriber(
+        supported_phrases=SUPPORTED_PHRASES, single_utterance=False
+    )
+
+
+def speak_text(text=None, ssml=None, enable=True, voice=DEFAULT_VOICE_NAME):
+    if enable:
+        audio_bytes = google_speech.load_or_convert_text_to_speech(
+            text=text, ssml=ssml, voice_name=voice
+        )
+        audio_utils.play_audio_bytes(audio_bytes)
+        time.sleep(POST_SPEECH_SLEEP_TIME_SEC)
 
 
 @click.command()
@@ -82,6 +127,8 @@ def chat(
     """Run a chat session with the Agent."""
     ctx = Settings.from_env_file(secrets_file)
 
+    listener = _get_transcriber()
+
     cache = diskcache.Cache(directory=ctx.disk_cache_dir)
     oai_client = OAIClient(
         ctx.openai_api_key,
@@ -91,42 +138,51 @@ def chat(
     prompt_config = get_prompt_config(
         user_name=user_name, agent_name=agent_name
     )
-    opening_line, prompt_text = utils.get_prompt_text(
+    opening_line, prompt_text = chat_utils.get_prompt_text(
         prompt_file=prompt_file, user_name=user_name, agent_name=agent_name
     )
 
-    style = utils.get_default_style()
-    session = utils.init_prompt_session(
-        prompt_history_path=ctx.prompt_history_path, style=style
-    )
-    write_text = utils.get_write_text_fn(agent_name, "agent")
+    agent_text_fn = chat_utils.get_write_text_fn(agent_name, "bot")
+    user_text_fn = chat_utils.get_write_text_fn(user_name, "user")
 
     # Load historical chat if available
     turns = []
     if chat_id is not None:
-        turn_dict = utils.load_turns(chat_id=chat_id, turns_dir=ctx.chat_turns_dir)
+        turn_dict = chat_utils.load_turns(chat_id=chat_id, turns_dir=ctx.chat_turns_dir)
         turns = turn_dict["turns"]
-        click.echo(utils.build_transcript(turns))
+        click.echo(chat_utils.build_transcript(turns))
         user_name = turn_dict["user_name"]
     else:
-        chat_id = utils.make_chat_id(chat_name)
+        chat_id = chat_utils.make_chat_id(chat_name)
         click.echo(f"Chat Id: {chat_id}")
-        write_text(opening_line)
+        speak_text(opening_line)
+        agent_text_fn(opening_line)
         turns.append({"speaker": "agent", "text": opening_line})
 
     exit_loop = False
     while not exit_loop:
-        user_text = session.prompt(
-            message=HTML(f"<user-prompt>{user_name}</user-prompt>: ")
-        )
-        if user_text.strip():
+        # Begin transcribing microphone audio stream
+        # TODO(bfortuner): Handle transcriber error (retry/backoff)
+        transcripts = listener.listen()
+        for transcript in transcripts:
+
+            # If user desires exit or silence for 10 seconds, end the call.
+            if exit_loop or transcript.deadline_exceeded:
+                exit_loop = True
+                break
+
+            # Only a partial, continue
+            user_text = transcript.text.strip()
+            if not transcript.is_final or not user_text:
+                continue
+                
             try:
-                if user_text.strip().lower() in ["exit", "quit"]:
+                user_text_fn(user_text)
+                turns.append({"speaker": "user", "text": user_text})
+                if user_desires_call_end(user_text):
                     exit_loop = True
-                    utils.handle_end_chat(turns, user_name, write_text)
                 else:
-                    turns.append({"speaker": "user", "text": user_text})
-                    agent_text = utils.chat_prompt(
+                    agent_text = chat_utils.chat_prompt(
                         turns=turns,
                         user_name=user_name,
                         agent_name=agent_name,
@@ -134,14 +190,14 @@ def chat(
                         prompt_config=prompt_config,
                         oai_client=oai_client,
                     )
-
-                    write_text(agent_text)
+                    speak_text(text=agent_text)
+                    agent_text_fn(agent_text)
                     turns.append({"speaker": "agent", "text": agent_text})
             except Exception as e:
                 click.echo(e)
                 traceback.print_exc(file=sys.stdout)
 
-    utils.save_turns(
+    chat_utils.save_turns(
         chat_id=chat_id,
         turns=turns,
         user_name=user_name,

@@ -1,5 +1,7 @@
 # Voicebot CLI
-Gives chat bots a voice using speech synthesis, speech to text, and GPT-3. Write a text file, get a voice bot.
+Give chat bots a voice using speech synthesis, speech to text, and GPT-3.
+
+Write a text file, get a voice bot.
 
 Adds audio/speech on top of https://github.com/bfortuner/textbots.
 
@@ -46,47 +48,121 @@ A chat bot who gives system design interviews!
 > 
 > (prompt continues)
 
-See `chatbots/interview.txt`.
+See `examples/interview.txt`.
 
 ## Running the bot
 
-Requires Python 3.6+. Tested on Mac M1.
+Requires Python 3.7+. Tested on Mac M1.
 
-1. Create an account with OpenAI and add your API key to `.env.secrets`
 
-2. Install python requirements.
+### 1. Setup LLM Provider - OpenAI
+Create an account with OpenAI and add your API key to `.env.secrets`
+
+### 2.Setup Google Cloud SDK (for ASR/Speech)
+
+First, create a GCP account + project.
+Next, enable the text2speech and speech2text APIs in GCP.
+Next, install the SDK and log in
+https://cloud.google.com/sdk/docs/install
+
+```
+gcloud init (set project to 'YOUR_PROJECT_YOU_SET_UP')
+gcloud config list
+```
+
+Should see something like
+
+```
+[core]
+account = bfortuner@gmail.com
+disable_usage_reporting = True
+project = YOUR_PROJECT_YOU_SET_UP
+Your active configuration is: [default]
+```
+
+Login to get credentials
+
+```
+gcloud auth application-default login
+```
+
+### Install Requirements
+
+#### MacOS - M1/M2
+
+0. Ensure XCode, Homebrew, Rust compiler are installed
 
 ```bash
-# Ensure you're using python 3.6+
-python3 --version
+# Install XCode (if not installed)
 
-# Uses your default python environment
-pip3 install -r requirements.txt
+# Install Rust Compiler (if not installed) https://github.com/huggingface/transformers/issues/2831
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+```
 
-# Alternatively, create a virtual environment (recommended)
-pip3 install virtualenv
-virtualenv .venv --python python3
-source .venv/bin/activate
+# Install Homebrew (if not installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+1. Install homebrew prerequisites
+
+```bash
+brew install openssl portaudio
+brew link portaudio
+```
+
+2. Grpcio Install - add these to to .zshrc / .bashrc (replace paths to libs if required)
+```
+export PKG_CONFIG_PATH="/opt/homebrew/opt/openssl@3/lib/pkgconfig"
+export PATH="/opt/homebrew/opt/openssl@3/bin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/openssl@3/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/openssl@3/include"
+export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
+export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
+
+pip install --no-cache-dir --upgrade --force-reinstall -Iv grpcio
+```
+
+3. PyAudio Install
+
+Create a pydistutils config file with the portaudio lib paths
+```bash
+cat <<EOF >> .pydistutils.cfg
+[build_ext]
+include_dirs=`brew --prefix portaudio`/include/
+library_dirs=`brew --prefix portaudio`/lib/
+EOF
+```
+
+4. Python requirements
+
+```
 pip install -r requirements.txt
 ```
 
-3. Run some examples
+## Run some examples
 
 ```bash
+# Verify ASR (speech-to-text) works
+python -m examples.speech2text main
+
+# Verify voice synthesis (text-to-speech) works
+python -m examples.text2speech main
+
 # Run the basic assistant demo. Type "exit" to end the chat.
-python cli.py --user-name Brendan --prompt-file chatbots/assistant.txt
+python -m cli --user-name Brendan --prompt-file voicebots/assistant.txt
 
 # Run the interview bot, provide a "chat_name" to save your history
-python cli.py --user-name Brendan --prompt-file chatbots/interview.txt --chat-name my_interview
+python -m cli --user-name Brendan --prompt-file voicebots/interview.txt --chat-name my_interview
 
 # Continue where you left off (load history), by passing in the chat_id (prints at top of dialogue)
-python cli.py --user-name Brendan --prompt-file chatbots/interview.txt --chat-id my_interview_971d58d4
+python -m cli --user-name Brendan --prompt-file voicebots/interview.txt --chat-id my_interview_971d58d4
 ```
-
 
 ## Creating a new bot
 
-1. Create a new instruction file in `chatbots/` like `chatbots/my_new_bot.txt`.
+1. Create a new instruction file in `examples/` like `examples/my_new_bot.txt`.
 2. Add your opening line at the top of the file, followed by 6 hashtags `######`.
 
 ```txt
@@ -107,7 +183,7 @@ Note: you must include `{transcript}` so we know where to insert the dialogue hi
 4. Run your bot! Type "exit" to end the chat.
 
 ```bash
-python cli.py --user-name Brendan --prompt-file chatbots/my_new_bot.txt
+python cli.py --user-name Brendan --prompt-file examples/my_new_bot.txt
 ```
 
-Look at some of the examples in `chatbots/` for guidance.
+Look at some of the examples in `examples/` for guidance.
