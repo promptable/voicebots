@@ -22,6 +22,8 @@ from voicebots.oai_client import OAIClient
 from voicebots import chat_utils
 
 DEFAULT_VOICE_NAME = "en-IN-Wavenet-A"  # "en-GB-Neural2-C"
+DEFAULT_VOICE_NAME = "en-GB-Neural2-D"
+DEFAULT_GENDER = "male"
 POST_SPEECH_SLEEP_TIME_SEC = 0
 # List of common phrases we expect. Used to "prime" speech rec provider
 # and improve results
@@ -29,9 +31,9 @@ SUPPORTED_PHRASES = []
 
 # Update PROMPT_CONFIG to customize your experience.
 PROMPT_CONFIG = {
-    "model": "text-davinci-002",
+    "model": "text-davinci-003",
     "temperature": 0.7,
-    "max_tokens": 50,
+    "max_tokens": 100,
     "logit_bias": {198: -100},  # Prevent "\n" from being generated
 }
 
@@ -44,7 +46,7 @@ def get_prompt_config(user_name: str, agent_name: str) -> Dict:
     - Returns a copy of PROMPT_CONFIG with your custom params.
     """
     params = PROMPT_CONFIG.copy()
-    params["stop"] = ["\n", f"{user_name}:", f"{agent_name}:"]
+    params["stop"] = ["\n", f"{user_name}:", f"{agent_name}:", "User:"]
     print(params)
     return params
 

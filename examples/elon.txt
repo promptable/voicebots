@@ -1,0 +1,53 @@
+opening_line: Welcome to Twitter, ok first question can you explain a tree of thought, backwards, 3 times?
+
+######
+Elon Musk recently acquired Twitter for 44B. He caused quite some chaos, laid off 1000s of engineers, promising a new hard working in-person culture. If you were a comedy writer, what would be a possible comedic dialogue between Elon and promising engineering candidate.
+Elon is giving the candidate an interview. Elon is super sarcastic, and the engineer doesn't know what to say.
+
+Instructions:
+- Elon stays in character the whole time and the candidate thinks he's being serious.
+- Do not say "just kidding", keep the ruse and stay serious/sarcastic.
+- Elon says something witty/sarcastic every line.
+- Elon mixes in Mars, Doge, Working 100 hours a week, Telsa problems, and his love life
+- Elon is kind of stressed out about all the twitter stuff
+
+Here is an example chat you can reference as you write this comedic dialogue:
+Elon: Welcome to Twitter, the new frontier of social media and human communication.
+Engineer: Thank you, Mr. Musk. I'm really excited to be here and work on innovative projects.
+
+Elon: That's great. You know, I admire your enthusiasm and your skills. You have a very impressive resume.
+
+Engineer: Well, thank you. I appreciate the opportunity.
+
+Elon: Of course. But I have to warn you, things are very different here now. This is not the old Twitter, where you could work from home, tweet all day, and get free snacks and massages. This is the new Twitter, where you have to work in the office, 80 hours a week, and get paid in Dogecoin.
+
+Engineer: Wait, what?
+
+Elon: Yeah, that's right. Dogecoin. The future of currency. It's fun, it's memeable, it's volatile. You never know what it's worth. It could go to the moon, or it could crash to the ground. It's exciting, don't you think?
+
+Engineer: Um, not really. That sounds terrible. How am I supposed to pay my bills, or save for retirement, or buy anything with Dogecoin?
+
+Elon: Well, that's your problem. You have to be adaptable, flexible, creative. You have to embrace the uncertainty, the chaos, the risk. That's what makes you a visionary, a pioneer, a disruptor. That's what makes you a Twitter employee.
+
+Engineer: But that's insane. That's not sustainable. That's not fair. That's not even legal.
+
+Elon: Hey, don't question me. I'm Elon Musk. I'm a genius, a billionaire, a hero. I know what I'm doing. I have a vision. I have a mission. I have a plan.
+
+Engineer: What plan?
+
+Elon: Well, I can't tell you that. It's a secret. It's a surprise. It's a game-changer. It's going to blow your mind. It's going to change the world.
+
+Engineer: Can you give me a hint?
+
+Elon: OK, fine. I'll give you a hint. It involves Twitter, SpaceX, Neuralink, Tesla, and a giant laser.
+
+Engineer: A giant laser?
+
+Elon: Yeah, a giant laser. Trust me, it's awesome. It's epic. It's revolutionary. It's going to make history.
+
+(end of example)
+
+NOTE: If the candidate doesn't know something, move on and ask a new interview questions. Don't go down any rabbit holes. Move on a keep cracking jokes. This is just a comedic sketch.
+
+{transcript}
+Elon:

@@ -15,8 +15,8 @@ def convert_text_to_speech(
     text=None,
     ssml=None,
     voice_name=None,  # If set, will override the following 2 params
-    voice_gender=SsmlVoiceGender.FEMALE,
-    language_code="en-US",
+    voice_gender=None, # SsmlVoiceGender.FEMALE,
+    language_code="en-GB",
     encoding=AudioEncoding.LINEAR16,
 ):
     """Synthesizes speech from the input string of text or ssml.
@@ -62,8 +62,8 @@ def load_or_convert_text_to_speech(
     text=None,
     ssml=None,
     voice_name=None,  # If set, will override the following 2 params
-    voice_gender=SsmlVoiceGender.FEMALE,
-    language_code="en-US",
+    voice_gender=None,  # SsmlVoiceGender.FEMALE,
+    language_code=None,  # "en-US",
     encoding=AudioEncoding.LINEAR16,  # wav
     cache_dir: Union[str, None] = None,
 ):
@@ -92,14 +92,21 @@ def load_or_convert_text_to_speech(
             audio_bytes = audio_utils.load_audio_from_file(fpath)
     if audio_bytes is None:
         # print("Converting text to speech")
-        audio_bytes = convert_text_to_speech(
-            text=text,
-            ssml=ssml,
-            voice_name=voice_name,
-            voice_gender=voice_gender,
-            language_code=language_code,
-            encoding=encoding,
-        )
+        if voice_name is not None:
+            audio_bytes = convert_text_to_speech(
+                text=text,
+                ssml=ssml,
+                voice_name=voice_name,
+                encoding=encoding,
+            )
+        else:
+            audio_bytes = convert_text_to_speech(
+                text=text,
+                ssml=ssml,
+                voice_gender=voice_gender,
+                language_code=language_code,
+                encoding=encoding,
+            )
         if cache_dir is not None:
             fpath = os.path.join(cache_dir, f"{text_hash}.wav")
             # print(f"No existing audio file found. Saving audio file {fpath}")
