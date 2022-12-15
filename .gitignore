@@ -1,3 +1,5 @@
+.pydistutils.cfg
+
 # Custom
 .env.secret
 .prompt_history

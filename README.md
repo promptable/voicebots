@@ -1,4 +1,5 @@
 # Voicebot CLI
+
 Give chat bots a voice using speech synthesis and GPT-3.
 
 Adds audio/speech on top of https://github.com/bfortuner/textbots.
@@ -7,7 +8,7 @@ Adds audio/speech on top of https://github.com/bfortuner/textbots.
 
 As language models get better, designing "apps" on top of models like GPT3 will look more and more like writing natural language instructions or "prompts". Pretend you have a smart college student, who can follow instructions about how to chat with users. What would you tell them?
 
-Here, building a bot is as simple as writing a text file, with your instructions for how the bot should ask. That's it. 
+Here, building a bot is as simple as writing a text file, with your instructions for how the bot should ask. That's it.
 
 Here are some examples:
 
@@ -17,33 +18,31 @@ An open-ended chat bot for talking about pretty much anything.
 
 > opening_line: Hello {user_name}, how can I help you?
 > \#\#\#\#\#\#
-> 
+>
 > Below is a conversation between a knowledgable, helpful, and witty AI assistant and a user, who has some questions about a topic. The AI assistant is able to answer the user's questions and provide additional information about the topic. The AI assistant is able to keep the conversation focused on the topic and provide relevant information to the user. The closer the AI agent can get to answering the user's questions, the more helpful the AI agent will be to the user.
-> 
+>
 > {transcript}
 > Assistant:
 
-
 Here `{user_name}` is replaced with the name you pass as a CLI argument. `{transcript}` is replaced with the dialogue history.
-
 
 ### Interview Bot
 
 A chat bot who gives system design interviews!
 
 > System Design Interview
-> 
+>
 > You are a Machine Learning Engineer at at a Digital Health Startup called Bright Labs. Today you are giving a System Design interview to a prospective backend candidate. Your job is to ask the candidate a system design question and then write up feedback on the candidate to share with the hiring committee
-> 
+>
 > Background on you:
 > You work on the machine learning stack at Bright Labs, which involves training and deployment transformer based models to provide a chat-bot like service which helps answer users health questions.
-> 
+>
 > Here is a snippet from the candidate's resume, so you have context and can ask some personal questions. And tailor the interview to the candidate's experiences.
-> 
+>
 > Candidate: {user_name}
-> 
+>
 > Resume:
-> 
+>
 > (prompt continues)
 
 See `examples/interview.txt`.
@@ -52,8 +51,8 @@ See `examples/interview.txt`.
 
 Requires Python 3.7+. Tested on Mac M1.
 
-
 ### 1. Setup LLM Provider - OpenAI
+
 Create an account with OpenAI and add your API key to `.env.secrets`
 
 ### 2.Setup Google Cloud SDK (for ASR/Speech)
@@ -95,8 +94,10 @@ gcloud auth application-default login
 
 # Install Rust Compiler (if not installed) https://github.com/huggingface/transformers/issues/2831
 ```
+
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source $HOME/.cargo/env
+
 ```
 
 # Install Homebrew (if not installed)
@@ -111,6 +112,7 @@ brew link portaudio
 ```
 
 2. Grpcio Install - add these to to .zshrc / .bashrc (replace paths to libs if required)
+
 ```
 export PKG_CONFIG_PATH="/opt/homebrew/opt/openssl@3/lib/pkgconfig"
 export PATH="/opt/homebrew/opt/openssl@3/bin:$PATH"
@@ -125,6 +127,9 @@ pip install --no-cache-dir --upgrade --force-reinstall -Iv grpcio
 3. PyAudio Install
 
 Create a pydistutils config file with the portaudio lib paths
+
+NOTE: PUT THIS IN YOUR HOME DIR!!!
+
 ```bash
 cat <<EOF >> .pydistutils.cfg
 [build_ext]
@@ -149,13 +154,13 @@ python -m examples.speech2text main
 python -m examples.text2speech main
 
 # Run the basic assistant demo. Type "exit" to end the chat.
-python -m cli --user-name Brendan --prompt-file voicebots/assistant.txt
+python -m cli --user-name Brendan --prompt-file examples/assistant.txt
 
 # Run the interview bot, provide a "chat_name" to save your history
-python -m cli --user-name Brendan --prompt-file voicebots/interview.txt --chat-name my_interview
+python -m cli --user-name Brendan --prompt-file examples/interview.txt --chat-name my_interview
 
 # Continue where you left off (load history), by passing in the chat_id (prints at top of dialogue)
-python -m cli --user-name Brendan --prompt-file voicebots/interview.txt --chat-id my_interview_971d58d4
+python -m cli --user-name Brendan --prompt-file examples/interview.txt --chat-id my_interview_971d58d4
 ```
 
 ## Creating a new bot
@@ -168,6 +173,7 @@ opening_line: Hello, how can I help you?
 ######
 <instructions here>
 ```
+
 3. Add your instructions!
 4. Add your final line, typically:
 
