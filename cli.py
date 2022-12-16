@@ -33,7 +33,7 @@ SUPPORTED_PHRASES = []
 PROMPT_CONFIG = {
     "model": "text-davinci-003",
     "temperature": 0.7,
-    "max_tokens": 100,
+    "max_tokens": 128,
     "logit_bias": {198: -100},  # Prevent "\n" from being generated
 }
 
@@ -47,7 +47,6 @@ def get_prompt_config(user_name: str, agent_name: str) -> Dict:
     """
     params = PROMPT_CONFIG.copy()
     params["stop"] = ["\n", f"{user_name}:", f"{agent_name}:", "User:"]
-    print(params)
     return params
 
 
